@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String?  
+  email    String   @unique
+  password String
+  role     String   @default("CUSTOMER") // "ADMIN" or "CUSTOMER"
+  orders   Order[]
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String
+  products Product[]
+}
+
+model Product {
+  id            Int         @id @default(autoincrement())
+  name          String
+  description   String
+  price         Float
+  previousPrice Float?
+  imageUrl      String?
+  sizes         String?  
+  colors        String?  
+  stockStatus   String      @default("IN_STOCK") 
+  isFeatured    Boolean     @default(false)
+  isNewArrival  Boolean     @default(false)
+  isBestSeller  Boolean     @default(false)
+  categoryId    Int
+  category      Category    @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItem[]
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  user      User        @relation(fields: [userId], references: [id])
+  total     Float
+  status    String      @default("PENDING")
+  createdAt DateTime    @default(now())
+  items     OrderItem[]
+}
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  price     Float
+  size      String?
+  color     String?
+}
+
+model ContactMessage {
+  id        Int      @id @default(autoincrement())
+  name      String
+  contact   String
+  message   String
+  createdAt DateTime @default(now())
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard | Champions</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    body { background-color: #f4f6f8; color: #333; }
+    .card { border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 10px; }
+    .btn-brand { background-color: #00d2ff; color: black; font-weight: bold; border-radius: 5px; }
+    .btn-brand:hover { background-color: #ffcc00; color: black; }
+    .table th { background-color: #0a192f; color: white; }
+  </style>
+</head>
+<body>
+  <div class="container mt-4 mb-5" style="max-width: 1000px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <img src="/images/logo.png" alt="Logo" style="max-height: 60px;">
+      <a href="/" class="btn btn-outline-dark btn-sm">View Website</a>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="loginSection" class="card p-4" style="max-width: 500px; margin: 0 auto;">
+      <h4 class="mb-3 text-dark text-center">Admin Login</h4>
+      <form id="loginForm">
+        <div class="mb-3"><label>Email</label><input type="email" id="email" class="form-control" value="admin@champions.com" required></div>
+        <div class="mb-3"><label>Password</label><input type="password" id="password" class="form-control" required></div>
+        <button type="submit" class="btn btn-brand w-100">Login</button>
+      </form>
+      <div id="loginMsg" class="mt-3 text-center"></div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="dashboardSection" style="display: none;">
+      <div class="mb-4">
+        <button onclick="showTab('products')" id="btn-products" class="btn btn-brand me-2">Manage Products</button>
+        <button onclick="showTab('orders')" id="btn-orders" class="btn btn-outline-dark me-2">View Customer Orders</button>
+        <button onclick="showTab('messages')" id="btn-messages" class="btn btn-outline-dark me-2">View Messages</button>
+        <button onclick="logout()" class="btn btn-danger float-end">Logout</button>
+      </div>
+
+      <!-- PRODUCTS TAB -->
+      <div id="productsTab" style="display: none;">
+        <!-- Add/Edit Product Form -->
+        <div class="card p-4 mb-4">
+          <div class="d-flex justify-content-between">
+            <h4 class="mb-3 text-dark" id="formTitle">Add New Product</h4>
+            <button onclick="cancelEdit()" id="cancelEditBtn" class="btn btn-sm btn-outline-danger mb-3" style="display: none;">Cancel Edit</button>
+          </div>
+          
+          <form id="productForm">
+            <input type="hidden" id="editProductId" value="">
+            <div class="row mb-3">
+              <div class="col-md-6"><label>Product Name</label><input type="text" id="name" class="form-control" required></div>
+              <div class="col-md-6"><label>Category</label><select id="categoryId" class="form-select" required></select></div>
+            </div>
+            <div class="mb-3"><label>Description</label><textarea id="description" class="form-control" rows="2" required></textarea></div>
+            <div class="row mb-3">
+              <div class="col-md-3"><label>Price (KSh)</label><input type="number" id="price" class="form-control" required></div>
+              <div class="col-md-3"><label>Prev Price</label><input type="number" id="previousPrice" class="form-control"></div>
+              <div class="col-md-3"><label>Upload Photo</label><input type="file" id="imageFile" class="form-control" accept="image/*"></div>
+              <div class="col-md-3"><label>OR Image URL</label><input type="text" id="imageUrlText" class="form-control" placeholder="https://..."></div>
+            </div>
+            <div class="row mb-4">
+              <div class="col-md-4"><label>Sizes</label><input type="text" id="sizes" class="form-control" placeholder="39, 40, 41"></div>
+              <div class="col-md-4"><label>Colors</label><input type="text" id="colors" class="form-control" placeholder="Cyan, Black"></div>
+              <div class="col-md-4">
+                <label>Stock Status</label>
+                <select id="stockStatus" class="form-select">
+                  <option value="IN_STOCK">In Stock</option>
+                  <option value="OUT_OF_STOCK">Out of Stock</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-brand w-100" id="submitBtn">Publish Product</button>
+          </form>
+          <div id="productMsg" class="mt-3 text-center"></div>
+        </div>
+
+        <!-- Current Products List -->
+        <div class="card p-4">
+          <h4 class="mb-3 text-dark">Current Products</h4>
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Status</th><th class="text-center">Action</th></tr></thead>
+              <tbody id="adminProductList"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ORDERS TAB -->
+      <div id="ordersTab" class="card p-4" style="display: none;">
+        <h4 class="mb-3 text-dark">Incoming Orders</h4>
+        <table class="table table-bordered">
+          <thead><tr><th>Order #</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
+          <tbody id="ordersTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- MESSAGES TAB -->
+      <div id="messagesTab" class="card p-4" style="display: none;">
+        <h4 class="mb-3 text-dark">Customer Messages</h4>
+        <table class="table table-bordered">
+          <thead><tr><th>Date</th><th>Name</th><th>Contact</th><th>Message</th></tr></thead>
+          <tbody id="messagesTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let allProducts = [];
+    if (localStorage.getItem('adminToken')) showDashboard();
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: document.getElementById('email').value, password: document.getElementById('password').value })
+      });
+      const data = await res.json();
+      if (res.ok) { localStorage.setItem('adminToken', data.token); showDashboard(); } 
+      else { document.getElementById('loginMsg').innerHTML = `<span class="text-danger">${data.error}</span>`; }
+    });
+
+    document.getElementById('productForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msg = document.getElementById('productMsg');
+      const editId = document.getElementById('editProductId').value;
+      msg.innerHTML = "<span class='text-warning'>Processing...</span>";
+
+      const formData = new FormData();
+      formData.append('name', document.getElementById('name').value);
+      formData.append('description', document.getElementById('description').value);
+      formData.append('price', document.getElementById('price').value);
+      formData.append('previousPrice', document.getElementById('previousPrice').value);
+      formData.append('sizes', document.getElementById('sizes').value);
+      formData.append('colors', document.getElementById('colors').value);
+      formData.append('stockStatus', document.getElementById('stockStatus').value);
+      formData.append('categoryId', document.getElementById('categoryId').value);
+      formData.append('isFeatured', 'true');
+      formData.append('imageUrlText', document.getElementById('imageUrlText').value);
+      
+      const fileInput = document.getElementById('imageFile');
+      if (fileInput.files[0]) formData.append('imageFile', fileInput.files[0]);
+
+      const url = editId ? `/api/admin/products/${editId}` : '/api/admin/products';
+      const method = editId ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method: method, headers: { 'Authorization': localStorage.getItem('adminToken') }, body: formData
+      });
+      const data = await res.json();
+      
+      if (res.ok) {
+        msg.innerHTML = `<div class="alert alert-success">Product ${editId ? 'updated' : 'added'}!</div>`;
+        cancelEdit();
+        loadAdminProducts();
+      } else {
+        msg.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+      }
+    });
+
+    function editProduct(id) {
+      const product = allProducts.find(p => p.id === id);
+      if (!product) return;
+      document.getElementById('formTitle').innerText = "Edit Product";
+      document.getElementById('submitBtn').innerText = "Update Product";
+      document.getElementById('cancelEditBtn').style.display = "block";
+      document.getElementById('editProductId').value = product.id;
+
+      document.getElementById('name').value = product.name;
+      document.getElementById('description').value = product.description;
+      document.getElementById('price').value = product.price;
+      document.getElementById('previousPrice').value = product.previousPrice || "";
+      document.getElementById('sizes').value = product.sizes || "";
+      document.getElementById('colors').value = product.colors || "";
+      document.getElementById('stockStatus').value = product.stockStatus || "IN_STOCK";
+      document.getElementById('imageUrlText').value = product.imageUrl || "";
+      document.getElementById('categoryId').value = product.categoryId;
+      document.getElementById('imageFile').value = "";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function cancelEdit() {
+      document.getElementById('formTitle').innerText = "Add New Product";
+      document.getElementById('submitBtn').innerText = "Publish Product";
+      document.getElementById('cancelEditBtn').style.display = "none";
+      document.getElementById('editProductId').value = "";
+      document.getElementById('productForm').reset();
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm("Delete this product permanently?")) return;
+      const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+      if (res.ok) loadAdminProducts();
+      else alert((await res.json()).error);
+    }
+
+    async function loadAdminProducts() {
+      const tbody = document.getElementById('adminProductList');
+      tbody.innerHTML = "<tr><td colspan='5' class='text-center'>Loading...</td></tr>";
+      const res = await fetch('/api/products');
+      allProducts = await res.json();
+
+      if (allProducts.length === 0) return tbody.innerHTML = "<tr><td colspan='5' class='text-center'>No products in store.</td></tr>";
+
+      tbody.innerHTML = allProducts.map(p => `
+        <tr>
+          <td><img src="${p.imageUrl}" style="height: 50px; width: 50px; object-fit: contain;"></td>
+          <td>${p.name}</td>
+          <td>KSh ${p.price}</td>
+          <td><span class="badge ${p.stockStatus === 'OUT_OF_STOCK' ? 'bg-danger' : 'bg-success'}">${p.stockStatus}</span></td>
+          <td class="text-center">
+            <button onclick="editProduct(${p.id})" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i> Edit</button>
+            <button onclick="deleteProduct(${p.id})" class="btn btn-sm btn-danger"><i class="bi bi-trash"></i> Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function showTab(tab) {
+      document.getElementById('productsTab').style.display = 'none';
+      document.getElementById('ordersTab').style.display = 'none';
+      document.getElementById('messagesTab').style.display = 'none';
+      document.getElementById('btn-products').className = 'btn btn-outline-dark me-2';
+      document.getElementById('btn-orders').className = 'btn btn-outline-dark me-2';
+      document.getElementById('btn-messages').className = 'btn btn-outline-dark me-2';
+
+      if (tab === 'products') {
+        document.getElementById('productsTab').style.display = 'block';
+        document.getElementById('btn-products').className = 'btn btn-brand me-2';
+        loadAdminProducts();
+      } else if (tab === 'orders') {
+        document.getElementById('ordersTab').style.display = 'block';
+        document.getElementById('btn-orders').className = 'btn btn-brand me-2';
+        loadOrders();
+      } else if (tab === 'messages') {
+        document.getElementById('messagesTab').style.display = 'block';
+        document.getElementById('btn-messages').className = 'btn btn-brand me-2';
+        loadMessages();
+      }
+    }
+
+    async function loadOrders() {
+      const tbody = document.getElementById('ordersTableBody');
+      tbody.innerHTML = "<tr><td colspan='5' class='text-center'>Loading...</td></tr>";
+      const orders = await (await fetch('/api/admin/orders')).json();
+      if (orders.length === 0) return tbody.innerHTML = "<tr><td colspan='5' class='text-center'>No orders yet.</td></tr>";
+      tbody.innerHTML = orders.map(o => `
+        <tr><td>#${o.id}</td><td>${o.user.name}</td><td><small>${o.items.map(i => `${i.quantity}x ${i.product.name} (Size: ${i.size})`).join("<br>")}</small></td><td>KSh ${o.total}</td><td><span class="badge bg-warning text-dark">${o.status}</span></td></tr>
+      `).join('');
+    }
+
+    async function loadMessages() {
+      const tbody = document.getElementById('messagesTableBody');
+      tbody.innerHTML = "<tr><td colspan='4' class='text-center'>Loading...</td></tr>";
+      const messages = await (await fetch('/api/admin/messages')).json();
+      if (messages.length === 0) return tbody.innerHTML = "<tr><td colspan='4' class='text-center'>No messages yet.</td></tr>";
+      tbody.innerHTML = messages.map(m => `<tr><td><small>${new Date(m.createdAt).toLocaleDateString()}</small></td><td>${m.name}</td><td>${m.contact}</td><td>${m.message}</td></tr>`).join('');
+    }
+
+    async function showDashboard() {
+      document.getElementById('loginSection').style.display = 'none'; document.getElementById('dashboardSection').style.display = 'block';
+      const categories = await (await fetch('/api/categories')).json();
+      document.getElementById('categoryId').innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      showTab('products');
+    }
+    function logout() { localStorage.removeItem('adminToken'); window.location.reload(); }
+  </script>
+</body>
+</html>

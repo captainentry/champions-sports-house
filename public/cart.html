@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Cart - Champions Sport House</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,800;1,800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f4f6f8; }
+    h1, h2, h3, .brand-font { font-family: 'Montserrat', sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; }
+    .navbar { background-color: #000; padding: 10px 0; border-bottom: 3px solid #00d2ff; }
+    .navbar-brand { color: white !important; }
+    .card { border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-radius: 0; }
+    .btn-brand { background-color: #000; color: white; font-weight: bold; border-radius: 0; text-transform: uppercase; }
+    .btn-brand:hover { background-color: #00d2ff; color: black; }
+    .btn-checkout { background-color: #00d2ff; color: black; font-weight: 900; font-size: 1.2rem; padding: 15px; border-radius: 0; text-transform: uppercase; width: 100%; border: none; transition: 0.3s;}
+    .btn-checkout:hover { background-color: #ffcc00; }
+    .cart-img { width: 80px; height: 80px; object-fit: contain; background: #f8f9fa; }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg mb-5">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <img src="/images/logo.png" alt="Logo" style="max-height: 50px;">
+      </a>
+      <a href="/" class="btn btn-outline-light btn-sm">Continue Shopping</a>
+    </div>
+  </nav>
+
+  <div class="container pb-5">
+    <h2 class="brand-font mb-4">Your Shopping Cart</h2>
+    
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card p-4" id="cartContainer">
+          <!-- Items will be injected here -->
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card p-4">
+          <h4 class="brand-font mb-4">Order Summary</h4>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Subtotal</span>
+            <span id="subtotal">KSh 0</span>
+          </div>
+          <div class="d-flex justify-content-between mb-2">
+            <span>Delivery Fee</span>
+            <span class="text-muted">Calculated at checkout</span>
+          </div>
+          <hr>
+          <div class="d-flex justify-content-between mb-4">
+            <strong class="fs-5">Total</strong>
+            <strong class="fs-5" id="total">KSh 0</strong>
+          </div>
+          <button onclick="checkout()" class="btn btn-checkout" id="checkoutBtn">Proceed to Checkout</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const container = document.getElementById('cartContainer');
+
+    function renderCart() {
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-5">
+            <h4 class="text-muted mb-3">Your cart is empty</h4>
+            <a href="/" class="btn btn-brand">Go to Shop</a>
+          </div>`;
+        document.getElementById('subtotal').innerText = "KSh 0";
+        document.getElementById('total').innerText = "KSh 0";
+        return;
+      }
+
+      container.innerHTML = "";
+      let subtotal = 0;
+
+      cart.forEach((item, index) => {
+        const itemTotal = item.price * item.qty;
+        subtotal += itemTotal;
+        const formattedPrice = item.price.toLocaleString('en-KE');
+        const sizeText = item.size ? item.size : 'N/A';
+
+        container.innerHTML += `
+          <div class="d-flex align-items-center mb-4 pb-3 border-bottom">
+            <img src="${item.image}" class="cart-img me-4" alt="${item.name}">
+            <div class="flex-grow-1">
+              <h5 class="brand-font mb-1" style="font-size:1.1rem;">${item.name}</h5>
+              <p class="text-muted mb-0">Size: <strong>${sizeText}</strong></p>
+              <p class="text-muted mb-0">KSh ${formattedPrice}</p>
+            </div>
+            <div class="d-flex align-items-center mx-3">
+              <button class="btn btn-sm btn-outline-dark" onclick="updateQty(${index}, -1)">-</button>
+              <span class="mx-3 fw-bold">${item.qty}</span>
+              <button class="btn btn-sm btn-outline-dark" onclick="updateQty(${index}, 1)">+</button>
+            </div>
+            <div class="text-end" style="width: 100px;">
+              <strong>KSh ${itemTotal.toLocaleString('en-KE')}</strong>
+            </div>
+            <button class="btn btn-link text-danger ms-2" onclick="removeItem(${index})">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        `;
+      });
+
+      document.getElementById('subtotal').innerText = `KSh ${subtotal.toLocaleString('en-KE')}`;
+      document.getElementById('total').innerText = `KSh ${subtotal.toLocaleString('en-KE')}`;
+    }
+
+    function updateQty(index, change) {
+      cart[index].qty += change;
+      if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+    }
+
+    async function checkout() {
+      if (cart.length === 0) return alert("Your cart is empty!");
+      
+      const token = localStorage.getItem('customerToken');
+      if (!token) {
+        alert("Please login to complete your order.");
+        window.location.href = '/login.html';
+        return;
+      }
+
+      const phone = prompt("Please enter your M-Pesa / Phone number for delivery:");
+      if (!phone) return;
+
+      const totalPrice = cart.reduce((total, item) => total + (item.price * item.qty), 0);
+      const btn = document.getElementById('checkoutBtn');
+      btn.innerText = "Processing...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': token
+          },
+          body: JSON.stringify({ items: cart, total: totalPrice, phone: phone })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          alert(`Order #${data.orderId} placed successfully! We will contact you on ${phone}.`);
+          localStorage.removeItem('cart');
+          window.location.href = '/';
+        } else {
+          alert(data.error);
+          btn.innerText = "Proceed to Checkout";
+          btn.disabled = false;
+        }
+      } catch (err) {
+        alert("Something went wrong. Please try again.");
+        btn.innerText = "Proceed to Checkout";
+        btn.disabled = false;
+      }
+    }
+
+    renderCart();
+  </script>
+</body>
+</html>
