@@ -15,85 +15,106 @@
       --brand-cyan: #00d2ff;
       --brand-yellow: #ffcc00;
     }
-    body { font-family: 'Inter', sans-serif; background-color: #f4f6f8; }
+    body { font-family: 'Inter', sans-serif; background-color: #f4f6f8; overflow-x: hidden; }
     h1, h2, h3, .brand-font { font-family: 'Montserrat', sans-serif; font-weight: 900; font-style: italic; text-transform: uppercase; }
     
-    .navbar { background-color: var(--brand-black); padding: 10px 0; border-bottom: 3px solid var(--brand-cyan); }
+    /* Promo Bar */
+    .promo-bar { background-color: var(--brand-black); border-bottom: 2px solid var(--brand-cyan); overflow: hidden; white-space: nowrap; }
+    .promo-text { display: inline-block; animation: marquee 15s linear infinite; color: white; font-weight: 600; font-size: 0.9rem; letter-spacing: 1px; margin: 0; padding: 8px 0; }
+    @keyframes marquee { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+
+    /* Navbar */
+    .navbar { background-color: rgba(0, 0, 0, 0.95); padding: 10px 0; border-bottom: 3px solid var(--brand-cyan); backdrop-filter: blur(10px); }
     .navbar-brand { color: white !important; display: flex; align-items: center; }
-    .nav-link { color: white !important; font-weight: 600; text-transform: uppercase; font-size: 14px; margin: 0 5px; }
-    .nav-link:hover { color: var(--brand-cyan) !important; }
+    .nav-link { color: white !important; font-weight: 600; text-transform: uppercase; font-size: 14px; margin: 0 5px; transition: 0.3s; }
+    .nav-link:hover { color: var(--brand-cyan) !important; transform: translateY(-2px); }
     
+    /* Hero Section */
     .hero {
       background: linear-gradient(135deg, var(--brand-navy) 0%, var(--brand-black) 100%);
       color: white;
-      padding: 60px 0 100px 0;
+      padding: 80px 0 120px 0;
       text-align: center;
       position: relative;
       overflow: hidden; 
     }
+
+    /* Animated background glow */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(0,210,255,0.15) 0%, transparent 70%);
+      z-index: 0;
+      animation: pulseGlow 4s infinite alternate;
+    }
+    @keyframes pulseGlow { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } }
     
     .hero-logo {
-      width: 100%;
-      max-width: 450px;
-      height: auto;
-      margin-bottom: 20px;
-      filter: drop-shadow(0px 10px 20px rgba(0, 210, 255, 0.2)); 
-      position: relative;
-      z-index: 10; 
-      mix-blend-mode: screen; 
+      width: 100%; max-width: 400px; height: auto; margin-bottom: 20px;
+      filter: drop-shadow(0px 10px 30px rgba(0, 210, 255, 0.4)); 
+      position: relative; z-index: 10; mix-blend-mode: screen; 
+      animation: floatLogo 5s ease-in-out infinite;
     }
+    @keyframes floatLogo { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
 
-    .hero h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; position: relative; z-index: 10; }
+    .hero h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 20px; position: relative; z-index: 10; text-shadow: 0 5px 15px rgba(0,0,0,0.5); }
     .hero .cyan { color: var(--brand-cyan); }
     .hero .yellow { color: var(--brand-yellow); }
     .hero p { font-size: 1.2rem; color: #ccc; margin-bottom: 30px; position: relative; z-index: 10; }
-    .btn-hero { background-color: var(--brand-cyan); color: black; font-weight: 900; font-size: 1.2rem; padding: 15px 40px; border-radius: 0; text-transform: uppercase; font-style: italic; text-decoration: none; position: relative; z-index: 10; display: inline-block;}
-    .btn-hero:hover { background-color: var(--brand-yellow); color: black; }
-
-    .hero-player {
-      position: absolute;
-      top: 60px; 
-      width: 350px; 
-      height: 350px;
-      object-fit: cover;
-      z-index: 1;
-      -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
-      mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
-      animation: float 4s ease-in-out infinite;
-    }
     
+    /* Pulsing Button */
+    .btn-hero { 
+      background-color: var(--brand-cyan); color: black; font-weight: 900; font-size: 1.2rem; padding: 15px 40px; border-radius: 0; text-transform: uppercase; font-style: italic; text-decoration: none; position: relative; z-index: 10; display: inline-block; transition: 0.3s;
+      animation: pulseBtn 2s infinite; border: none; box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7);
+    }
+    .btn-hero:hover { background-color: var(--brand-yellow); color: black; transform: scale(1.05); }
+    @keyframes pulseBtn { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 210, 255, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(0, 210, 255, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 210, 255, 0); } }
+
+    /* Trust Badge below button */
+    .trust-badge { position: relative; z-index: 10; margin-top: 20px; color: #8892b0; font-size: 0.9rem; font-weight: 600; letter-spacing: 1px; display: flex; justify-content: center; gap: 15px; }
+    .trust-badge i { color: var(--brand-cyan); margin-right: 5px; }
+
+    /* Players */
+    .hero-player { position: absolute; top: 60px; width: 350px; height: 350px; object-fit: cover; z-index: 1; -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 70%); mask-image: radial-gradient(circle at center, black 40%, transparent 70%); animation: float 4s ease-in-out infinite; }
     .player-left { left: 2%; } 
     .player-right { right: 2%; animation-delay: 2s; } 
+    @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
 
-    @keyframes float {
-      0% { transform: translateY(0px); }
-      50% { transform: translateY(-20px); } 
-      100% { transform: translateY(0px); }
-    }
+    @media (max-width: 1100px) { .hero-player { opacity: 0.2; width: 250px; height: 250px; } }
+    @media (max-width: 768px) { .hero-player { display: none; } .hero h1 { font-size: 2.5rem; } .hero-logo { max-width: 300px; } }
 
-    @media (max-width: 1100px) {
-      .hero-player { opacity: 0.3; width: 250px; height: 250px; }
-    }
-    @media (max-width: 768px) {
-      .hero-player { display: none; }
-      .hero h1 { font-size: 2.5rem; }
-      .hero-logo { max-width: 300px; }
-    }
+    /* Scroll Indicator */
+    .scroll-down { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: white; z-index: 10; animation: bounce 2s infinite; text-decoration: none; }
+    .scroll-down i { font-size: 2rem; }
+    @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); } 40% { transform: translateY(-20px) translateX(-50%); } 60% { transform: translateY(-10px) translateX(-50%); } }
 
+    /* Why Shop With Us */
+    .feature-box { transition: 0.3s; }
+    .feature-box:hover { transform: translateY(-10px); }
+    
+    /* Products */
     .product-card { border: none; border-radius: 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s; height: 100%; background: white;}
-    .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.15); }
+    .product-card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.15); }
     .product-img { height: 250px; object-fit: contain; background-color: #f8f9fa; padding: 20px;}
     .price { font-size: 1.4rem; font-weight: 900; color: var(--brand-black); }
     .old-price { text-decoration: line-through; color: #999; font-size: 1rem; margin-left: 10px; }
-    
     .btn-cart { background-color: var(--brand-black); color: white; font-weight: bold; width: 100%; border-radius: 0; text-transform: uppercase; border: 1px solid var(--brand-black); transition: 0.3s; padding: 10px;}
     .btn-cart:hover { background-color: var(--brand-cyan); color: black; border-color: var(--brand-cyan); }
-    
     .btn-whatsapp { background-color: #25D366; color: white; font-weight: bold; width: 100%; border-radius: 0; text-transform: uppercase; text-decoration: none; display: block; text-align: center; padding: 10px; margin-top: 5px;}
     .btn-whatsapp:hover { background-color: #1ebe5d; color: white; }
     
-    footer { background-color: var(--brand-black); color: white; padding: 40px 0; margin-top: 50px; border-top: 5px solid var(--brand-cyan); }
+    /* Testimonials */
+    .testimonial-card { border: none; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); transition: 0.3s; }
+    .testimonial-card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
     
+    /* Footer */
+    footer { background-color: var(--brand-black); color: white; padding: 60px 0 20px 0; margin-top: 50px; border-top: 5px solid var(--brand-cyan); }
+    footer a:hover { color: var(--brand-cyan) !important; }
+    
+    /* Floating WhatsApp */
     .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); z-index: 1000; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; animation: pulse 2s infinite; }
     .whatsapp-float:hover { background-color: #128C7E; transform: scale(1.1); color: white; }
     .whatsapp-float svg { width: 35px; height: 35px; fill: white; }
@@ -102,7 +123,13 @@
 </head>
 <body>
 
-  <nav class="navbar navbar-expand-lg">
+  <!-- Top Promo Bar -->
+  <div class="promo-bar text-center py-2">
+    <p class="promo-text">⚡ FREE DELIVERY IN MERU FOR ORDERS OVER KSH 5,000 | CALL/WHATSAPP: 0796608974 ⚡</p>
+  </div>
+
+  <!-- Navbar with Logo -->
+  <nav class="navbar navbar-expand-lg sticky-top">
     <div class="container">
       <a class="navbar-brand" href="/">
         <img src="/images/logo.png" alt="Champions Sport House" style="max-height: 60px; width: auto;">
@@ -118,34 +145,190 @@
     </div>
   </nav>
 
+  <!-- Hero Section with Players and Large Logo -->
   <header class="hero">
     <img src="/images/ronaldo.png" alt="Ronaldo" class="hero-player player-left">
     <img src="/images/messi.png" alt="Messi" class="hero-player player-right">
 
-    <div class="container">
+    <div class="container" style="position: relative; z-index: 10;">
       <img src="/images/logo.png" alt="Champions Sport House Logo" class="hero-logo">
+      
       <h1>YOUR GAME. YOUR GEAR.<br><span class="cyan">YOUR</span> <span class="yellow">CHAMPION.</span></h1>
       <p>Discover quality sportswear, footwear, and sporting equipment in Kenya.</p>
+      
       <a href="#shop" class="btn btn-hero mt-3">SHOP NOW</a>
+      
+      <!-- Trust Badges -->
+      <div class="trust-badge">
+        <span><i class="bi bi-check-circle-fill"></i> 100% Genuine</span>
+        <span><i class="bi bi-truck"></i> Fast Delivery</span>
+        <span><i class="bi bi-shield-check"></i> Secure</span>
+      </div>
     </div>
+
+    <!-- Scroll Down Indicator -->
+    <a href="#shop" class="scroll-down d-none d-md-block">
+      <i class="bi bi-chevron-double-down"></i>
+    </a>
   </header>
 
+  <!-- Product Grid -->
   <section id="shop" class="container py-5">
-    <h2 class="brand-font mb-4">Featured Gear</h2>
+    <h2 class="brand-font mb-4 text-center">FEATURED GEAR</h2>
     <div class="row" id="productGrid">
       <div class="text-center py-5" id="loading"><h4>Loading products...</h4></div>
     </div>
   </section>
 
+  <!-- Why Shop With Us -->
+  <section class="container py-5 bg-white shadow-sm my-5 rounded">
+    <div class="text-center mb-5">
+      <h2 class="brand-font">WHY SHOP WITH US</h2>
+      <p class="text-muted">The Champions Promise</p>
+    </div>
+    <div class="row text-center">
+      <div class="col-md-3 mb-4 feature-box">
+        <i class="bi bi-truck fs-1" style="color: #00d2ff;"></i>
+        <h5 class="brand-font mt-3" style="color: #0a192f;">Fast Delivery</h5>
+        <p class="text-muted small">Quick and reliable delivery to your doorstep.</p>
+      </div>
+      <div class="col-md-3 mb-4 feature-box">
+        <i class="bi bi-patch-check fs-1" style="color: #00d2ff;"></i>
+        <h5 class="brand-font mt-3" style="color: #0a192f;">100% Genuine</h5>
+        <p class="text-muted small">We only stock authentic sports gear.</p>
+      </div>
+      <div class="col-md-3 mb-4 feature-box">
+        <i class="bi bi-shield-lock fs-1" style="color: #00d2ff;"></i>
+        <h5 class="brand-font mt-3" style="color: #0a192f;">Secure Payments</h5>
+        <p class="text-muted small">Safe and easy payment via M-Pesa.</p>
+      </div>
+      <div class="col-md-3 mb-4 feature-box">
+        <i class="bi bi-tags fs-1" style="color: #00d2ff;"></i>
+        <h5 class="brand-font mt-3" style="color: #0a192f;">Best Prices</h5>
+        <p class="text-muted small">Premium quality at competitive prices.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Brands We Stock -->
+  <div class="bg-light py-4 text-center mb-5">
+    <h6 class="text-muted fw-bold mb-3 text-uppercase" style="letter-spacing: 2px;">BRANDS WE STOCK</h6>
+    <div class="d-flex justify-content-center flex-wrap gap-4 brand-font fs-3 text-secondary" style="opacity: 0.6;">
+      <span>ADIDAS</span>
+      <span>NIKE</span>
+      <span>PUMA</span>
+      <span>UNDER ARMOUR</span>
+      <span>MIZUNO</span>
+    </div>
+  </div>
+
+  <!-- Testimonials Section -->
+  <section class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="brand-font">WHAT OUR CUSTOMERS SAY</h2>
+      <p class="text-muted">Don't just take our word for it. Here is what champions are saying.</p>
+    </div>
+    
+    <div class="row">
+      <!-- Steve -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card testimonial-card h-100 border-0 p-4 text-center">
+          <div class="mb-3 text-warning fs-5">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+          </div>
+          <p class="fst-italic text-muted" style="font-size: 0.9rem;">"I bought the Cyan Predator boots and they are 100% original. The delivery to Meru was so fast, and the team helped me confirm my size on WhatsApp before I paid."</p>
+          <div class="mt-auto">
+            <h5 class="brand-font mb-0" style="font-size: 1rem; color: #0a192f;">Steve M.</h5>
+            <small class="text-muted">Football Player</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dan -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card testimonial-card h-100 border-0 p-4 text-center">
+          <div class="mb-3 text-warning fs-5">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+          </div>
+          <p class="fst-italic text-muted" style="font-size: 0.9rem;">"I ordered a full set of jerseys for my local team. The quality of the fabric is top-tier, and the pricing was very fair. They really know their sports."</p>
+          <div class="mt-auto">
+            <h5 class="brand-font mb-0" style="font-size: 1rem; color: #0a192f;">Dan K.</h5>
+            <small class="text-muted">Team Captain</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sarah -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card testimonial-card h-100 border-0 p-4 text-center">
+          <div class="mb-3 text-warning fs-5">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+          </div>
+          <p class="fst-italic text-muted" style="font-size: 0.9rem;">"Finally, a place in Nchiru with genuine sporting equipment! I got my running gear here. The staff is super helpful, and I love ordering directly from their website."</p>
+          <div class="mt-auto">
+            <h5 class="brand-font mb-0" style="font-size: 1rem; color: #0a192f;">Sarah W.</h5>
+            <small class="text-muted">Fitness Enthusiast</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Eunice Wangari -->
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card testimonial-card h-100 border-0 p-4 text-center">
+          <div class="mb-3 text-warning fs-5">
+            <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+          </div>
+          <p class="fst-italic text-muted" style="font-size: 0.9rem;">"I was looking for high-quality sneakers for my daily workouts and netball practice. Champions had exactly what I needed. The WhatsApp support is instant!"</p>
+          <div class="mt-auto">
+            <h5 class="brand-font mb-0" style="font-size: 1rem; color: #0a192f;">Eunice W.</h5>
+            <small class="text-muted">Netball Player</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
   <footer>
-    <div class="container text-center">
-      <h3 class="brand-font mb-3">CHAMPIONS <span style="color:var(--brand-cyan)">SPORT HOUSE</span></h3>
-      <p>Nchiru Market, Kaleo Street, 1st Floor Kaleo Building</p>
-      <p class="mb-3">Call / WhatsApp: <strong>0796608974</strong> / <strong>0768274483</strong></p>
-      <p class="text-muted small">&copy; 2024 Champions Sport House. All Rights Reserved.</p>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <h3 class="brand-font mb-3">CHAMPIONS <span style="color:var(--brand-cyan)">SPORT HOUSE</span></h3>
+          <p class="text-muted small">All Sports. One Place. Discover quality sportswear, footwear, and sporting equipment in Kenya.</p>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+          <h5 class="brand-font mb-3" style="font-size: 1.1rem;">Quick Links</h5>
+          <ul class="list-unstyled">
+            <li><a href="/" class="text-muted text-decoration-none small">Home</a></li>
+            <li><a href="/#shop" class="text-muted text-decoration-none small">Shop</a></li>
+            <li><a href="/about.html" class="text-muted text-decoration-none small">About Us</a></li>
+            <li><a href="/contact.html" class="text-muted text-decoration-none small">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="col-md-4 mb-4">
+          <h5 class="brand-font mb-3" style="font-size: 1.1rem;">Customer Care</h5>
+          <ul class="list-unstyled">
+            <li><a href="#" class="text-muted text-decoration-none small">Delivery Policy</a></li>
+            <li><a href="#" class="text-muted text-decoration-none small">Returns & Exchange</a></li>
+            <li><a href="#" class="text-muted text-decoration-none small">Privacy Policy</a></li>
+            <li><a href="#" class="text-muted text-decoration-none small">Terms & Conditions</a></li>
+          </ul>
+        </div>
+      </div>
+      
+      <hr style="border-color: #333;">
+      
+      <div class="text-center">
+        <p class="mb-2">Nchiru Market, Kaleo Street, 1st Floor Kaleo Building</p>
+        <p class="mb-2">Call / WhatsApp: <strong>0796608974</strong> / <strong>0768274483</strong></p>
+        <p class="text-muted small m-0">&copy; 2024 Champions Sport House. All Rights Reserved.</p>
+      </div>
     </div>
   </footer>
 
+  <!-- Floating WhatsApp -->
   <a href="https://wa.me/254796608974?text=Hello%20Champions%20Sport%20House%2C%20do%20you%20offer%20free%20delivery%3F" target="_blank" class="whatsapp-float" title="Chat with Customer Support">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/></svg>
   </a>
@@ -177,6 +360,16 @@
         <li class="nav-item"><a class="btn btn-whatsapp btn-sm ms-2" href="/signup.html" style="width:auto; padding: 8px 15px;">Sign Up</a></li>
       `;
     }
+
+    // Close mobile menu when a link is clicked
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('nav-link')) {
+        const navbarCollapse = document.getElementById('navbarNav');
+        if (navbarCollapse.classList.contains('show')) {
+          navbarCollapse.classList.remove('show');
+        }
+      }
+    });
 
     function logout() {
       localStorage.removeItem('customerToken');
