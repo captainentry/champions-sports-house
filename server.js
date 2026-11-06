@@ -13,9 +13,17 @@ const JWT_SECRET = "champions-sport-house-secret";
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static("public"));
 
-const uploadDir = path.join(process.cwd(), "public", "images");
+// THIS IS THE FIX: Using __dirname to find the public folder on Vercel
+app.use(express.static(path.join(__dirname, "public")));
+
+// Fallback to index.html for the root route
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// --- FILE UPLOAD SETUP ---
+const uploadDir = path.join(__dirname, "public", "images");
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
@@ -26,7 +34,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// ONE-CLICK DATABASE SETUP
+// --- ONE-CLICK DATABASE SETUP ---
 app.get("/api/setup", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash("champions2024", 10);
@@ -46,6 +54,7 @@ app.get("/api/setup", async (req, res) => {
   }
 });
 
+// --- AUTHENTICATION ---
 app.post("/api/auth/signup", async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -75,6 +84,7 @@ app.post("/api/login", async (req, res) => {
   res.json({ token, message: "Login successful" });
 });
 
+// --- PUBLIC DATA ---
 app.get("/api/products", async (req, res) => {
   const products = await prisma.product.findMany({ include: { category: true } });
   res.json(products);
@@ -93,6 +103,7 @@ app.post("/api/contact", async (req, res) => {
   } catch (error) { res.status(400).json({ error: "Failed to send message." }); }
 });
 
+// --- CHECKOUT ---
 app.post("/api/checkout", async (req, res) => {
   const { items, total } = req.body;
   const token = req.headers.authorization;
@@ -111,6 +122,7 @@ app.post("/api/checkout", async (req, res) => {
   } catch (error) { res.status(400).json({ error: error.message }); }
 });
 
+// --- ADMIN: MANAGE PRODUCTS ---
 app.post("/api/admin/products", upload.single("imageFile"), async (req, res) => {
   try {
     const { name, description, price, previousPrice, sizes, colors, categoryId, isFeatured, imageUrlText, stockStatus } = req.body;
