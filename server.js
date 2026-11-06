@@ -15,8 +15,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("public"));
 
-const uploadDir = path.join(__dirname, "public", "images");
-if (!fs.existsSync(uploadDir)) { fs.mkdirSync(uploadDir, { recursive: true }); }
+const uploadDir = path.join(process.cwd(), "public", "images");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, uploadDir),
@@ -24,7 +26,26 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// --- AUTH ---
+// ONE-CLICK DATABASE SETUP
+app.get("/api/setup", async (req, res) => {
+  try {
+    const hashedPassword = await bcrypt.hash("champions2024", 10);
+    await prisma.user.upsert({
+      where: { email: "admin@champions.com" },
+      update: { password: hashedPassword, role: "ADMIN" },
+      create: { email: "admin@champions.com", password: hashedPassword, role: "ADMIN" }
+    });
+    const categories = ["Football Boots", "Sports Shoes and Sneakers", "Jerseys and Team Kits", "Sportswear and Tracksuits", "Footballs", "Training Equipment", "Sports Bags and Backpacks", "Socks, Shin Guards and Protective Gear", "Goalkeeper Equipment", "Other Sports Accessories"];
+    for (const cat of categories) {
+      const exists = await prisma.category.findFirst({ where: { name: cat } });
+      if (!exists) await prisma.category.create({ data: { name: cat } });
+    }
+    res.json({ message: "Database setup complete! Admin created." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/api/auth/signup", async (req, res) => {
   const { name, email, password } = req.body;
   try {
@@ -54,7 +75,6 @@ app.post("/api/login", async (req, res) => {
   res.json({ token, message: "Login successful" });
 });
 
-// --- PUBLIC DATA ---
 app.get("/api/products", async (req, res) => {
   const products = await prisma.product.findMany({ include: { category: true } });
   res.json(products);
@@ -65,7 +85,6 @@ app.get("/api/categories", async (req, res) => {
   res.json(categories);
 });
 
-// --- CONTACT MESSAGES ---
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, contact, message } = req.body;
@@ -74,14 +93,6 @@ app.post("/api/contact", async (req, res) => {
   } catch (error) { res.status(400).json({ error: "Failed to send message." }); }
 });
 
-app.get("/api/admin/messages", async (req, res) => {
-  try {
-    const messages = await prisma.contactMessage.findMany({ orderBy: { createdAt: 'desc' } });
-    res.json(messages);
-  } catch (error) { res.status(500).json({ error: "Failed to fetch messages." }); }
-});
-
-// --- CHECKOUT ---
 app.post("/api/checkout", async (req, res) => {
   const { items, total } = req.body;
   const token = req.headers.authorization;
@@ -100,7 +111,6 @@ app.post("/api/checkout", async (req, res) => {
   } catch (error) { res.status(400).json({ error: error.message }); }
 });
 
-// --- ADMIN PRODUCTS ---
 app.post("/api/admin/products", upload.single("imageFile"), async (req, res) => {
   try {
     const { name, description, price, previousPrice, sizes, colors, categoryId, isFeatured, imageUrlText, stockStatus } = req.body;
@@ -109,8 +119,8 @@ app.post("/api/admin/products", upload.single("imageFile"), async (req, res) => 
     const product = await prisma.product.create({
       data: { name, description, price: parseFloat(price), previousPrice: previousPrice ? parseFloat(previousPrice) : null, imageUrl, sizes, colors, stockStatus, categoryId: parseInt(categoryId), isFeatured: isFeatured === 'true' }
     });
-    res.json({ message: "Product added!", product });
-  } catch (error) { res.status(400).json({ error: error.message }); }
+    res.json({ message: "Product added successfully!", product });
+  } catch (error) { res.status(400).json({ error: "Database Error: " + error.message }); }
 });
 
 app.put("/api/admin/products/:id", upload.single("imageFile"), async (req, res) => {
@@ -124,15 +134,15 @@ app.put("/api/admin/products/:id", upload.single("imageFile"), async (req, res) 
       where: { id: productId },
       data: { name, description, price: parseFloat(price), previousPrice: previousPrice ? parseFloat(previousPrice) : null, imageUrl, sizes, colors, stockStatus, categoryId: parseInt(categoryId), isFeatured: isFeatured === 'true' }
     });
-    res.json({ message: "Product updated!", product });
-  } catch (error) { res.status(400).json({ error: error.message }); }
+    res.json({ message: "Product updated successfully!", product });
+  } catch (error) { res.status(400).json({ error: "Database Error: " + error.message }); }
 });
 
 app.delete("/api/admin/products/:id", async (req, res) => {
   try {
     await prisma.product.delete({ where: { id: parseInt(req.params.id) } });
-    res.json({ message: "Product deleted!" });
-  } catch (error) { res.status(400).json({ error: "Cannot delete product linked to an order." }); }
+    res.json({ message: "Product deleted successfully" });
+  } catch (error) { res.status(400).json({ error: "Cannot delete product linked to an existing order." }); }
 });
 
 app.get("/api/admin/orders", async (req, res) => {
@@ -140,4 +150,13 @@ app.get("/api/admin/orders", async (req, res) => {
   res.json(orders);
 });
 
-app.listen(3000, () => console.log("🚀 Server running on http://localhost:3000"));
+app.get("/api/admin/messages", async (req, res) => {
+  const messages = await prisma.contactMessage.findMany({ orderBy: { createdAt: 'desc' } });
+  res.json(messages);
+});
+
+module.exports = app;
+
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(3000, () => console.log("🚀 Server running on http://localhost:3000"));
+}
