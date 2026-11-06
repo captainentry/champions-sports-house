@@ -112,7 +112,10 @@
     
     /* Footer */
     footer { background-color: var(--brand-black); color: white; padding: 60px 0 20px 0; margin-top: 50px; border-top: 5px solid var(--brand-cyan); }
-    footer a:hover { color: var(--brand-cyan) !important; }
+    
+    /* FIX: Make footer links light and visible */
+    footer ul li a { color: #a8b2d1 !important; transition: 0.3s; }
+    footer ul li a:hover { color: var(--brand-cyan) !important; padding-left: 5px; }
     
     /* Floating WhatsApp */
     .whatsapp-float { position: fixed; width: 60px; height: 60px; bottom: 30px; right: 30px; background-color: #25d366; color: #FFF; border-radius: 50px; text-align: center; box-shadow: 2px 2px 10px rgba(0,0,0,0.3); z-index: 1000; display: flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; animation: pulse 2s infinite; }
@@ -298,31 +301,31 @@
         </div>
         
         <div class="col-md-4 mb-4">
-          <h5 class="brand-font mb-3" style="font-size: 1.1rem;">Quick Links</h5>
+          <h5 class="brand-font mb-3" style="font-size: 1.1rem; color: white;">Quick Links</h5>
           <ul class="list-unstyled">
-            <li><a href="/" class="text-muted text-decoration-none small">Home</a></li>
-            <li><a href="/#shop" class="text-muted text-decoration-none small">Shop</a></li>
-            <li><a href="/about.html" class="text-muted text-decoration-none small">About Us</a></li>
-            <li><a href="/contact.html" class="text-muted text-decoration-none small">Contact Us</a></li>
+            <li class="mb-2"><a href="/" class="text-decoration-none">Home</a></li>
+            <li class="mb-2"><a href="/#shop" class="text-decoration-none">Shop</a></li>
+            <li class="mb-2"><a href="/about.html" class="text-decoration-none">About Us</a></li>
+            <li class="mb-2"><a href="/contact.html" class="text-decoration-none">Contact Us</a></li>
           </ul>
         </div>
 
         <div class="col-md-4 mb-4">
-          <h5 class="brand-font mb-3" style="font-size: 1.1rem;">Customer Care</h5>
+          <h5 class="brand-font mb-3" style="font-size: 1.1rem; color: white;">Customer Care</h5>
           <ul class="list-unstyled">
-            <li><a href="#" class="text-muted text-decoration-none small">Delivery Policy</a></li>
-            <li><a href="#" class="text-muted text-decoration-none small">Returns & Exchange</a></li>
-            <li><a href="#" class="text-muted text-decoration-none small">Privacy Policy</a></li>
-            <li><a href="#" class="text-muted text-decoration-none small">Terms & Conditions</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none">Delivery Policy</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none">Returns & Exchange</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none">Privacy Policy</a></li>
+            <li class="mb-2"><a href="#" class="text-decoration-none">Terms & Conditions</a></li>
           </ul>
         </div>
       </div>
       
       <hr style="border-color: #333;">
       
-      <div class="text-center">
-        <p class="mb-2">Nchiru Market, Kaleo Street, 1st Floor Kaleo Building</p>
-        <p class="mb-2">Call / WhatsApp: <strong>0796608974</strong> / <strong>0768274483</strong></p>
+      <div class="text-center mt-4">
+        <p class="mb-2 text-light">Nchiru Market, Kaleo Street, 1st Floor Kaleo Building</p>
+        <p class="mb-2 text-light">Call / WhatsApp: <strong>0796608974</strong> / <strong>0768274483</strong></p>
         <p class="text-muted small m-0">&copy; 2024 Champions Sport House. All Rights Reserved.</p>
       </div>
     </div>
@@ -361,7 +364,6 @@
       `;
     }
 
-    // Close mobile menu when a link is clicked
     document.addEventListener('click', function(e) {
       if (e.target.classList.contains('nav-link')) {
         const navbarCollapse = document.getElementById('navbarNav');
